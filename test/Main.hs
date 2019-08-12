@@ -10,7 +10,7 @@ import Data.Primitive (SmallArray)
 import Data.Proxy (Proxy(Proxy))
 import Test.QuickCheck (Arbitrary,Gen)
 import Test.QuickCheck.Classes (eqLaws,semigroupLaws)
-import Test.QuickCheck.Classes (monoidLaws,isListLaws)
+import Test.QuickCheck.Classes (monoidLaws,isListLaws,foldableLaws)
 import Test.Tasty (defaultMain,testGroup,TestTree)
 import qualified GHC.Exts as Exts
 import qualified Test.QuickCheck as QC
@@ -26,11 +26,11 @@ tests = testGroup "Chunks"
   , lawsToTest (semigroupLaws (Proxy :: Proxy (Chunks Integer)))
   , lawsToTest (monoidLaws (Proxy :: Proxy (Chunks Integer)))
   , lawsToTest (isListLaws (Proxy :: Proxy (Chunks Integer)))
+  , lawsToTest (foldableLaws (Proxy :: Proxy Chunks))
   ]
 
 lawsToTest :: QCC.Laws -> TestTree
 lawsToTest (QCC.Laws name pairs) = testGroup name (map (uncurry TQC.testProperty) pairs)
-
 
 instance Arbitrary a => Arbitrary (Chunks a) where
   arbitrary = QC.choose (0,3 :: Int) >>= \case

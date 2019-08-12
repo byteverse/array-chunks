@@ -58,11 +58,11 @@ eqChunksConsRight :: Eq a => Chunks a -> SmallArray a -> Int -> Int -> Chunks a 
 eqChunksConsRight ChunksNil !_ !_ !len ys = case len of
   0 -> allEmpty ys
   _ -> False
-eqChunksConsRight (ChunksCons x xs) y !off !len ys =
+eqChunksConsRight (ChunksCons x xs) !y !off !len ys =
   eqChunksConsBoth x 0 (PM.sizeofSmallArray x) y off len xs ys
 
 eqChunksConsBoth :: Eq a => SmallArray a -> Int -> Int -> SmallArray a -> Int -> Int -> Chunks a -> Chunks a -> Bool
-eqChunksConsBoth xh xoff xlen yh yoff ylen xt yt = case compare xlen ylen of
+eqChunksConsBoth !xh !xoff !xlen !yh !yoff !ylen !xt !yt = case compare xlen ylen of
   LT -> eqRange xh xoff yh yoff xlen && eqChunksConsRight xt yh xlen (ylen - xlen) yt
   GT -> eqRange xh xoff yh yoff ylen && eqChunksConsLeft xh ylen (xlen - ylen) xt yt
   EQ -> xh == yh && eqChunks xt yt
