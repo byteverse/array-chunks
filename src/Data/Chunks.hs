@@ -1,17 +1,26 @@
 {-# language BangPatterns #-}
 {-# language DerivingStrategies #-}
 {-# language TypeFamilies #-}
+{-# language MagicHash #-}
+{-# language UnboxedTuples #-}
 
 module Data.Chunks
   ( Chunks(..)
   , reverse
   , reverseOnto
+  , copy
+  , copyReverse
+  , concat
+  , concatReverse
   ) where
 
-import Prelude hiding (reverse)
+import Prelude hiding (reverse,concat)
 
-import Data.Primitive (SmallArray)
-import GHC.Exts (IsList)
+import Data.Primitive (SmallArray(..),SmallMutableArray(..))
+import GHC.Exts (IsList,Int#,State#,SmallMutableArray#,Int(I#),(+#),(-#))
+import GHC.Exts (SmallArray#)
+import GHC.ST (ST(..))
+import Control.Monad.ST.Run (runSmallArrayST)
 
 import qualified GHC.Exts as Exts
 import qualified Data.Foldable as F
@@ -136,3 +145,102 @@ reverseOnto :: Chunks a -> Chunks a -> Chunks a
 reverseOnto !x ChunksNil = x
 reverseOnto !x (ChunksCons y ys) =
   reverseOnto (ChunksCons y x) ys
+
+-- | Copy the contents of the chunks into a mutable array.
+-- Precondition: The destination must have enough space to
+-- house the contents. This is not checked.
+--
+-- > dest (before): [x,x,x,x,x,x,x,x,x,x,x,x]
+-- > copy dest 2 [[X,Y,Z],[A,B],[C,D]] (returns 9)
+-- > dest (after):  [x,x,X,Y,Z,A,B,C,D,x,x,x]
+copy ::
+     SmallMutableArray s a -- ^ Destination
+  -> Int -- ^ Destination offset
+  -> Chunks a -- ^ Source
+  -> ST s Int -- ^ Returns the next index into the destination after the payload
+{-# inline copy #-}
+copy (SmallMutableArray dst) (I# off) cs = ST
+  (\s0 -> case copy# dst off cs s0 of
+    (# s1, nextOff #) -> (# s1, I# nextOff #)
+  )
+
+copy# :: SmallMutableArray# s a -> Int# -> Chunks a -> State# s -> (# State# s, Int# #)
+copy# _ off ChunksNil s0 = (# s0, off #)
+copy# marr off (ChunksCons (SmallArray c) cs) s0 =
+  let !sz = Exts.sizeofSmallArray# c in
+  case Exts.copySmallArray# c 0# marr off sz s0 of
+    s1 -> copy# marr (off +# sz) cs s1
+
+-- | Copy the contents of the chunks into a mutable array,
+-- reversing the order of the chunks. Precondition: The
+-- destination must have enough space to house the contents.
+-- This is not checked.
+--
+-- > dest (before): [x,x,x,x,x,x,x,x,x,x,x,x]
+-- > copyReverse dest 10 [[X,Y,Z],[A,B],[C,D]] (returns 3)
+-- > dest (after):  [x,x,x,C,D,A,B,X,Y,Z,x,x]
+copyReverse ::
+     SmallMutableArray s a -- ^ Destination
+  -> Int -- ^ Destination range successor
+  -> Chunks a -- ^ Source
+  -> ST s Int -- ^ Returns the next index into the destination after the payload
+{-# inline copyReverse #-}
+copyReverse (SmallMutableArray dst) (I# off) cs = ST
+  (\s0 -> case copyReverse# dst off cs s0 of
+    (# s1, nextOff #) -> (# s1, I# nextOff #)
+  )
+
+copyReverse# :: SmallMutableArray# s a -> Int# -> Chunks a -> State# s -> (# State# s, Int# #)
+copyReverse# _ off ChunksNil s0 = (# s0, off #)
+copyReverse# marr prevOff (ChunksCons (SmallArray c) cs) s0 =
+  let !sz = Exts.sizeofSmallArray# c
+      !off = prevOff -# sz in
+  case Exts.copySmallArray# c 0# marr off sz s0 of
+    s1 -> copyReverse# marr off cs s1
+
+concat :: Chunks a -> SmallArray a
+{-# inline concat #-}
+concat x = SmallArray (concat# x)
+
+concat# :: Chunks a -> SmallArray# a
+{-# noinline concat# #-}
+concat# ChunksNil = case mempty of {SmallArray x -> x}
+concat# (ChunksCons c cs) = case cs of
+  ChunksNil -> case c of {SmallArray x -> x}
+  ChunksCons d ds -> unSmallArray $ runSmallArrayST $ do
+    let szc = PM.sizeofSmallArray c
+        szd = PM.sizeofSmallArray d
+        szboth = szc + szd
+        len = chunksLengthGo szboth ds
+    dst <- PM.newSmallArray len errorThunk
+    PM.copySmallArray dst 0 c 0 szc
+    PM.copySmallArray dst szc d 0 szd
+    _ <- copy dst szboth ds
+    PM.unsafeFreezeSmallArray dst
+
+concatReverse :: Chunks a -> SmallArray a
+{-# inline concatReverse #-}
+concatReverse x = SmallArray (concatReverse# x)
+
+concatReverse# :: Chunks a -> SmallArray# a
+{-# noinline concatReverse# #-}
+concatReverse# ChunksNil = case mempty of {SmallArray x -> x}
+concatReverse# (ChunksCons c cs) = case cs of
+  ChunksNil -> case c of {SmallArray x -> x}
+  ChunksCons d ds -> unSmallArray $ runSmallArrayST $ do
+    let szc = PM.sizeofSmallArray c
+        szd = PM.sizeofSmallArray d
+        szboth = szc + szd
+        len = chunksLengthGo szboth ds
+    dst <- PM.newSmallArray len errorThunk
+    PM.copySmallArray dst (len - szc) c 0 szc
+    PM.copySmallArray dst (len - (szc + szd)) d 0 szd
+    _ <- copyReverse dst (len - (szc + szd)) ds
+    PM.unsafeFreezeSmallArray dst
+
+unSmallArray :: SmallArray a -> SmallArray# a
+unSmallArray (SmallArray x) = x
+
+errorThunk :: a
+{-# noinline errorThunk #-}
+errorThunk = error "Data.Chunks: mistake"
