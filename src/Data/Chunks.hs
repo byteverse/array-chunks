@@ -12,6 +12,8 @@ module Data.Chunks
   , copyReverse
   , concat
   , concatReverse
+    -- * Traversals
+  , map'
   ) where
 
 import Prelude hiding (reverse,concat)
@@ -244,3 +246,19 @@ unSmallArray (SmallArray x) = x
 errorThunk :: a
 {-# noinline errorThunk #-}
 errorThunk = error "Data.Chunks: mistake"
+
+-- | Mapping over chunks is a little unusual in that the result
+-- is just a 'SmallArray'.
+map' :: (a -> b) -> Chunks a -> SmallArray b
+{-# inline map' #-}
+map' f cs = runSmallArrayST $ do
+  dst <- PM.newSmallArray len errorThunk
+  !_ <- F.foldlM
+    ( \ !ix a -> do
+      let !b = f a
+      PM.writeSmallArray dst ix b
+      pure (ix + 1)
+    ) 0 cs
+  PM.unsafeFreezeSmallArray dst
+  where
+  !len = chunksLength cs
