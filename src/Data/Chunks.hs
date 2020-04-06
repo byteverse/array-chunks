@@ -6,6 +6,7 @@
 
 module Data.Chunks
   ( Chunks(..)
+  , null
   , reverse
   , reverseOnto
   , copy
@@ -16,7 +17,7 @@ module Data.Chunks
   , map'
   ) where
 
-import Prelude hiding (reverse,concat)
+import Prelude hiding (reverse,concat,null)
 
 import Data.Primitive (SmallArray(..),SmallMutableArray(..))
 import GHC.Exts (IsList,Int#,State#,SmallMutableArray#,Int(I#),(+#),(-#))
@@ -47,6 +48,14 @@ instance IsList (Chunks a) where
   toList = chunksToSmallArrayList
   fromList xs = F.foldr ChunksCons ChunksNil xs
 
+-- | Are there any elements in the chunked list?
+null :: Chunks a -> Bool
+null = go where
+  go ChunksNil = True
+  go (ChunksCons x xs) = case PM.sizeofSmallArray x of
+    0 -> go xs
+    _ -> False
+
 chunksToSmallArrayList :: Chunks a -> [SmallArray a]
 chunksToSmallArrayList ChunksNil = []
 chunksToSmallArrayList (ChunksCons x xs) =
@@ -54,29 +63,22 @@ chunksToSmallArrayList (ChunksCons x xs) =
 
 eqChunks :: Eq a => Chunks a -> Chunks a -> Bool
 eqChunks ChunksNil cs = allEmpty cs
-eqChunks (ChunksCons x xs) cs = eqChunksConsLeft x 0 (PM.sizeofSmallArray x) xs cs
+eqChunks (ChunksCons x xs) cs = eqChunksCons x 0 (PM.sizeofSmallArray x) xs cs
 
--- The first argument chunk belongs to the second argument chunks.
+-- The first argument chunk belongs to the first argument chunks.
 -- It is its head. 
-eqChunksConsLeft :: Eq a => SmallArray a -> Int -> Int -> Chunks a -> Chunks a -> Bool
-eqChunksConsLeft !_ !_ !len xs ChunksNil = case len of
+eqChunksCons :: Eq a => SmallArray a -> Int -> Int -> Chunks a -> Chunks a -> Bool
+eqChunksCons !_ !_ !len xs ChunksNil = case len of
   0 -> allEmpty xs
   _ -> False
-eqChunksConsLeft x !off !len xs (ChunksCons y ys) =
+eqChunksCons x !off !len xs (ChunksCons y ys) =
   eqChunksConsBoth x off len y 0 (PM.sizeofSmallArray y) xs ys
-
-eqChunksConsRight :: Eq a => Chunks a -> SmallArray a -> Int -> Int -> Chunks a -> Bool
-eqChunksConsRight ChunksNil !_ !_ !len ys = case len of
-  0 -> allEmpty ys
-  _ -> False
-eqChunksConsRight (ChunksCons x xs) !y !off !len ys =
-  eqChunksConsBoth x 0 (PM.sizeofSmallArray x) y off len xs ys
 
 eqChunksConsBoth :: Eq a => SmallArray a -> Int -> Int -> SmallArray a -> Int -> Int -> Chunks a -> Chunks a -> Bool
 eqChunksConsBoth !xh !xoff !xlen !yh !yoff !ylen !xt !yt = case compare xlen ylen of
-  LT -> eqRange xh xoff yh yoff xlen && eqChunksConsRight xt yh xlen (ylen - xlen) yt
-  GT -> eqRange xh xoff yh yoff ylen && eqChunksConsLeft xh ylen (xlen - ylen) xt yt
-  EQ -> xh == yh && eqChunks xt yt
+  LT -> eqRange xh xoff yh yoff xlen && eqChunksCons yh (yoff + xlen) (ylen - xlen) yt xt
+  GT -> eqRange xh xoff yh yoff ylen && eqChunksCons xh (xoff + ylen) (xlen - ylen) xt yt
+  EQ -> eqRange xh xoff yh yoff xlen && eqChunks xt yt
 
 eqRange :: Eq a => SmallArray a -> Int -> SmallArray a -> Int -> Int -> Bool
 eqRange !xs !xoff !ys !yoff !len

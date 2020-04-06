@@ -8,10 +8,12 @@
 import Data.Chunks (Chunks(ChunksCons,ChunksNil))
 import Data.Primitive (SmallArray)
 import Data.Proxy (Proxy(Proxy))
+import GHC.Exts (fromList)
 import Test.QuickCheck (Arbitrary,Gen,(===))
 import Test.QuickCheck.Classes (eqLaws,semigroupLaws)
 import Test.QuickCheck.Classes (monoidLaws,isListLaws,foldableLaws)
 import Test.Tasty (defaultMain,testGroup,TestTree)
+import Test.Tasty.HUnit (testCase,(@=?))
 import qualified Data.Chunks as C
 import qualified Data.Foldable as F
 import qualified Data.List as L
@@ -36,6 +38,18 @@ tests = testGroup "Chunks"
       Exts.toList (mconcat (L.reverse (Exts.toList cs)))
       ===
       Exts.toList (C.concatReverse cs)
+  , testCase "eq-A" $
+      fromList [fromList [5 :: Integer],fromList [6 :: Integer]]
+      @=?
+      (fromList [fromList [5 :: Integer,6]] :: Chunks Integer)
+  , testCase "eq-B" $
+      fromList [fromList [],fromList [5 :: Integer],fromList [6 :: Integer]]
+      @=?
+      (fromList [fromList [5 :: Integer,6]] :: Chunks Integer)
+  , testCase "eq-C" $
+      fromList [fromList [],fromList [5 :: Integer],fromList [6 :: Integer]]
+      @=?
+      (fromList [fromList [5 :: Integer,6],fromList []] :: Chunks Integer)
   ]
 
 lawsToTest :: QCC.Laws -> TestTree
