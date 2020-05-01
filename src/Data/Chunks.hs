@@ -13,6 +13,8 @@ module Data.Chunks
   , copyReverse
   , concat
   , concatReverse
+    -- * Indexing
+  , index
     -- * Traversals
   , map'
   ) where
@@ -55,6 +57,18 @@ null = go where
   go (ChunksCons x xs) = case PM.sizeofSmallArray x of
     0 -> go xs
     _ -> False
+
+-- | Indexing into the chunked list, returning @Nothing@ if there
+-- are not enough elements.
+index :: Chunks a -> Int -> Maybe a
+index cs0 !ix0 = go cs0 ix0 where
+  go ChunksNil !_ = Nothing
+  go (ChunksCons x xs) !ix =
+    let !len = PM.sizeofSmallArray x in
+    if ix < len
+      then case PM.indexSmallArray## x ix of
+        (# v #) -> Just v
+      else go xs (ix - len)
 
 chunksToSmallArrayList :: Chunks a -> [SmallArray a]
 chunksToSmallArrayList ChunksNil = []
