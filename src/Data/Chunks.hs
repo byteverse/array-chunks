@@ -17,6 +17,15 @@ module Data.Chunks
   , index
     -- * Traversals
   , map'
+    -- * Construction
+  , singleton
+  , doubleton
+  , tripleton
+  , quadrupleton
+  , quintupleton
+  , sextupleton
+  , septupleton
+  , octupleton
   ) where
 
 import Prelude hiding (reverse,concat,null)
@@ -278,3 +287,93 @@ map' f cs = runSmallArrayST $ do
   PM.unsafeFreezeSmallArray dst
   where
   !len = chunksLength cs
+
+singleton :: a -> Chunks a
+{-# inline singleton #-}
+singleton a = ChunksCons
+  ( runSmallArrayST (PM.newSmallArray 1 a >>= PM.unsafeFreezeSmallArray)
+  ) ChunksNil
+
+doubleton :: a -> a -> Chunks a
+{-# inline doubleton #-}
+doubleton a b = ChunksCons
+  ( runSmallArrayST $ do
+      dst <- PM.newSmallArray 2 a
+      PM.writeSmallArray dst 1 b
+      PM.unsafeFreezeSmallArray dst
+  ) ChunksNil
+
+tripleton :: a -> a -> a -> Chunks a
+{-# inline tripleton #-}
+tripleton a b c = ChunksCons
+  ( runSmallArrayST $ do
+      dst <- PM.newSmallArray 3 a
+      PM.writeSmallArray dst 1 b
+      PM.writeSmallArray dst 2 c
+      PM.unsafeFreezeSmallArray dst
+  ) ChunksNil
+
+quadrupleton :: a -> a -> a -> a -> Chunks a
+{-# inline quadrupleton #-}
+quadrupleton a b c d = ChunksCons
+  ( runSmallArrayST $ do
+      dst <- PM.newSmallArray 4 a
+      PM.writeSmallArray dst 1 b
+      PM.writeSmallArray dst 2 c
+      PM.writeSmallArray dst 3 d
+      PM.unsafeFreezeSmallArray dst
+  ) ChunksNil
+
+quintupleton :: a -> a -> a -> a -> a -> Chunks a
+{-# inline quintupleton #-}
+quintupleton a b c d e = ChunksCons
+  ( runSmallArrayST $ do
+      dst <- PM.newSmallArray 5 a
+      PM.writeSmallArray dst 1 b
+      PM.writeSmallArray dst 2 c
+      PM.writeSmallArray dst 3 d
+      PM.writeSmallArray dst 4 e
+      PM.unsafeFreezeSmallArray dst
+  ) ChunksNil
+
+sextupleton :: a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline sextupleton #-}
+sextupleton a b c d e f = ChunksCons
+  ( runSmallArrayST $ do
+      dst <- PM.newSmallArray 6 a
+      PM.writeSmallArray dst 1 b
+      PM.writeSmallArray dst 2 c
+      PM.writeSmallArray dst 3 d
+      PM.writeSmallArray dst 4 e
+      PM.writeSmallArray dst 5 f
+      PM.unsafeFreezeSmallArray dst
+  ) ChunksNil
+
+septupleton :: a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline septupleton #-}
+septupleton a b c d e f g = ChunksCons
+  ( runSmallArrayST $ do
+      dst <- PM.newSmallArray 7 a
+      PM.writeSmallArray dst 1 b
+      PM.writeSmallArray dst 2 c
+      PM.writeSmallArray dst 3 d
+      PM.writeSmallArray dst 4 e
+      PM.writeSmallArray dst 5 f
+      PM.writeSmallArray dst 6 g
+      PM.unsafeFreezeSmallArray dst
+  ) ChunksNil
+
+octupleton :: a -> a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline octupleton #-}
+octupleton a b c d e f g h = ChunksCons
+  ( runSmallArrayST $ do
+      dst <- PM.newSmallArray 8 a
+      PM.writeSmallArray dst 1 b
+      PM.writeSmallArray dst 2 c
+      PM.writeSmallArray dst 3 d
+      PM.writeSmallArray dst 4 e
+      PM.writeSmallArray dst 5 f
+      PM.writeSmallArray dst 6 g
+      PM.writeSmallArray dst 7 h
+      PM.unsafeFreezeSmallArray dst
+  ) ChunksNil

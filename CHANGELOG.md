@@ -3,6 +3,8 @@
 ## 0.1.2.0 -- 2020-??-??
 
 * Add `index`.
+* Add `singleton`, `doubleton`, `tripleton`, `quadrupleton`,
+  `quintupleton`, `sextupleton`, `septupleton`, `octupleton`.
 
 ## 0.1.1.0 -- 2019-09-12
 
