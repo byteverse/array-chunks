@@ -288,12 +288,14 @@ map' f cs = runSmallArrayST $ do
   where
   !len = chunksLength cs
 
+-- | Create chunks with 1 element.
 singleton :: a -> Chunks a
 {-# inline singleton #-}
 singleton a = ChunksCons
   ( runSmallArrayST (PM.newSmallArray 1 a >>= PM.unsafeFreezeSmallArray)
   ) ChunksNil
 
+-- | Create chunks with 2 elements.
 doubleton :: a -> a -> Chunks a
 {-# inline doubleton #-}
 doubleton a b = ChunksCons
@@ -303,6 +305,7 @@ doubleton a b = ChunksCons
       PM.unsafeFreezeSmallArray dst
   ) ChunksNil
 
+-- | Create chunks with 3 elements.
 tripleton :: a -> a -> a -> Chunks a
 {-# inline tripleton #-}
 tripleton a b c = ChunksCons
@@ -313,6 +316,7 @@ tripleton a b c = ChunksCons
       PM.unsafeFreezeSmallArray dst
   ) ChunksNil
 
+-- | Create chunks with 4 elements.
 quadrupleton :: a -> a -> a -> a -> Chunks a
 {-# inline quadrupleton #-}
 quadrupleton a b c d = ChunksCons
@@ -324,6 +328,7 @@ quadrupleton a b c d = ChunksCons
       PM.unsafeFreezeSmallArray dst
   ) ChunksNil
 
+-- | Create chunks with 5 elements.
 quintupleton :: a -> a -> a -> a -> a -> Chunks a
 {-# inline quintupleton #-}
 quintupleton a b c d e = ChunksCons
@@ -336,6 +341,7 @@ quintupleton a b c d e = ChunksCons
       PM.unsafeFreezeSmallArray dst
   ) ChunksNil
 
+-- | Create chunks with 6 elements.
 sextupleton :: a -> a -> a -> a -> a -> a -> Chunks a
 {-# inline sextupleton #-}
 sextupleton a b c d e f = ChunksCons
@@ -349,6 +355,7 @@ sextupleton a b c d e f = ChunksCons
       PM.unsafeFreezeSmallArray dst
   ) ChunksNil
 
+-- | Create chunks with 7 elements.
 septupleton :: a -> a -> a -> a -> a -> a -> a -> Chunks a
 {-# inline septupleton #-}
 septupleton a b c d e f g = ChunksCons
@@ -363,6 +370,7 @@ septupleton a b c d e f g = ChunksCons
       PM.unsafeFreezeSmallArray dst
   ) ChunksNil
 
+-- | Create chunks with 8 elements.
 octupleton :: a -> a -> a -> a -> a -> a -> a -> a -> Chunks a
 {-# inline octupleton #-}
 octupleton a b c d e f g h = ChunksCons

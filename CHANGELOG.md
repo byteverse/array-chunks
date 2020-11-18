@@ -1,10 +1,12 @@
 # Revision history for array-chunks
 
-## 0.1.2.0 -- 2020-??-??
+## 0.1.2.0 -- 2020-11-18
 
 * Add `index`.
 * Add `singleton`, `doubleton`, `tripleton`, `quadrupleton`,
   `quintupleton`, `sextupleton`, `septupleton`, `octupleton`.
+* Add `map'`, which converts to `SmallArray` while mapping over
+  the elements.
 
 ## 0.1.1.0 -- 2019-09-12
 
