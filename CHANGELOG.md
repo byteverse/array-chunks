@@ -1,5 +1,9 @@
 # Revision history for array-chunks
 
+## 0.1.3.0 -- 2021-02-04
+
+* Add `nonupleton`, `decupleton`, `undecupleton`, `duodecupleton`.
+
 ## 0.1.2.0 -- 2020-11-18
 
 * Add `index`.

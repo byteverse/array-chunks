@@ -26,6 +26,10 @@ module Data.Chunks
   , sextupleton
   , septupleton
   , octupleton
+  , nonupleton
+  , decupleton
+  , undecupleton
+  , duodecupleton
   ) where
 
 import Prelude hiding (reverse,concat,null)
@@ -383,5 +387,79 @@ octupleton a b c d e f g h = ChunksCons
       PM.writeSmallArray dst 5 f
       PM.writeSmallArray dst 6 g
       PM.writeSmallArray dst 7 h
+      PM.unsafeFreezeSmallArray dst
+  ) ChunksNil
+
+-- | Create chunks with 9 elements.
+nonupleton :: a -> a -> a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline nonupleton #-}
+nonupleton a b c d e f g h i = ChunksCons
+  ( runSmallArrayST $ do
+      dst <- PM.newSmallArray 9 a
+      PM.writeSmallArray dst 1 b
+      PM.writeSmallArray dst 2 c
+      PM.writeSmallArray dst 3 d
+      PM.writeSmallArray dst 4 e
+      PM.writeSmallArray dst 5 f
+      PM.writeSmallArray dst 6 g
+      PM.writeSmallArray dst 7 h
+      PM.writeSmallArray dst 8 i
+      PM.unsafeFreezeSmallArray dst
+  ) ChunksNil
+
+-- | Create chunks with 10 elements.
+decupleton :: a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline decupleton #-}
+decupleton a b c d e f g h i j = ChunksCons
+  ( runSmallArrayST $ do
+      dst <- PM.newSmallArray 10 a
+      PM.writeSmallArray dst 1 b
+      PM.writeSmallArray dst 2 c
+      PM.writeSmallArray dst 3 d
+      PM.writeSmallArray dst 4 e
+      PM.writeSmallArray dst 5 f
+      PM.writeSmallArray dst 6 g
+      PM.writeSmallArray dst 7 h
+      PM.writeSmallArray dst 8 i
+      PM.writeSmallArray dst 9 j
+      PM.unsafeFreezeSmallArray dst
+  ) ChunksNil
+
+-- | Create chunks with 11 elements.
+undecupleton :: a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline undecupleton #-}
+undecupleton a b c d e f g h i j k = ChunksCons
+  ( runSmallArrayST $ do
+      dst <- PM.newSmallArray 11 a
+      PM.writeSmallArray dst 1 b
+      PM.writeSmallArray dst 2 c
+      PM.writeSmallArray dst 3 d
+      PM.writeSmallArray dst 4 e
+      PM.writeSmallArray dst 5 f
+      PM.writeSmallArray dst 6 g
+      PM.writeSmallArray dst 7 h
+      PM.writeSmallArray dst 8 i
+      PM.writeSmallArray dst 9 j
+      PM.writeSmallArray dst 10 k
+      PM.unsafeFreezeSmallArray dst
+  ) ChunksNil
+
+-- | Create chunks with 12 elements.
+duodecupleton :: a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline duodecupleton #-}
+duodecupleton a b c d e f g h i j k l = ChunksCons
+  ( runSmallArrayST $ do
+      dst <- PM.newSmallArray 12 a
+      PM.writeSmallArray dst 1 b
+      PM.writeSmallArray dst 2 c
+      PM.writeSmallArray dst 3 d
+      PM.writeSmallArray dst 4 e
+      PM.writeSmallArray dst 5 f
+      PM.writeSmallArray dst 6 g
+      PM.writeSmallArray dst 7 h
+      PM.writeSmallArray dst 8 i
+      PM.writeSmallArray dst 9 j
+      PM.writeSmallArray dst 10 k
+      PM.writeSmallArray dst 11 l
       PM.unsafeFreezeSmallArray dst
   ) ChunksNil
