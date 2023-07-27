@@ -30,6 +30,19 @@ module Data.Chunks
   , decupleton
   , undecupleton
   , duodecupleton
+    -- * Construction Alternate
+  , construct1
+  , construct2
+  , construct3
+  , construct4
+  , construct5
+  , construct6
+  , construct7
+  , construct8
+  , construct9
+  , construct10
+  , construct11
+  , construct12
   ) where
 
 import Prelude hiding (reverse,concat,null)
@@ -291,6 +304,54 @@ map' f cs = runSmallArrayST $ do
   PM.unsafeFreezeSmallArray dst
   where
   !len = chunksLength cs
+
+construct1 :: a -> Chunks a
+{-# inline construct1 #-}
+construct1 = singleton
+
+construct2 :: a -> a -> Chunks a
+{-# inline construct2 #-}
+construct2 = doubleton
+
+construct3 :: a -> a -> a -> Chunks a
+{-# inline construct3 #-}
+construct3 = tripleton
+
+construct4 :: a -> a -> a -> a -> Chunks a
+{-# inline construct4 #-}
+construct4 = quadrupleton
+
+construct5 :: a -> a -> a -> a -> a -> Chunks a
+{-# inline construct5 #-}
+construct5 = quintupleton
+
+construct6 :: a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline construct6 #-}
+construct6 = sextupleton
+
+construct7 :: a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline construct7 #-}
+construct7 = septupleton
+
+construct8 :: a -> a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline construct8 #-}
+construct8 = octupleton
+
+construct9 :: a -> a -> a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline construct9 #-}
+construct9 = nonupleton
+
+construct10 :: a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline construct10 #-}
+construct10 = decupleton
+
+construct11 :: a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline construct11 #-}
+construct11 = undecupleton
+
+construct12 :: a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> a -> Chunks a
+{-# inline construct12 #-}
+construct12 = duodecupleton
 
 -- | Create chunks with 1 element.
 singleton :: a -> Chunks a

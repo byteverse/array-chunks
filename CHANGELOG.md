@@ -1,5 +1,10 @@
 # Revision history for array-chunks
 
+## 0.1.4.0 -- 2023-??-??
+
+* Add `constructN` functions that use numbers instead of tuple names
+  for construction of fixed-length chunks.
+
 ## 0.1.3.0 -- 2021-02-04
 
 * Add `nonupleton`, `decupleton`, `undecupleton`, `duodecupleton`.
