@@ -1,6 +1,10 @@
 # Revision history for array-chunks
 
-## 0.1.4.0 -- 2023-??-??
+## 0.1.4.1 -- 2024-02-05
+
+* Update package metadata.
+
+## 0.1.4.0 -- 2023-08-30
 
 * Add `constructN` functions that use numbers instead of tuple names
   for construction of fixed-length chunks.
