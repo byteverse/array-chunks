@@ -1,5 +1,9 @@
 # Revision history for array-chunks
 
+## 0.1.4.2 -- 2024-02-06
+
+* Fix failing tests on Hackage.
+
 ## 0.1.4.1 -- 2024-02-05
 
 * Update package metadata.
